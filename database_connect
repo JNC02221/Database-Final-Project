@@ -1,0 +1,35 @@
+//This is the script that connects to the database and sets it to be used in the rest of the project
+
+const DB_password = "Enter your database password here";
+const DB_name = "LibraryDB";
+
+
+let mysql = require('mysql2');
+
+let con = mysql.createConnection({
+  host: "localhost",
+  port: 3306,
+  user: "root",
+  password: DB_password
+});
+
+con.connect();{
+  con.query(`CREATE DATABASE IF NOT EXISTS ${DB_name}`);
+  console.log("Connected to the database");
+}
+
+//make sure tables are made 
+
+
+
+function deleteDB(DB_name) {
+  con.query(`DROP DATABASE IF EXISTS ${DB_name}`, function(err, result) {
+    if (err) throw err;
+    console.log("Database deleted");
+  });
+}
+
+module.exports = {
+  con,
+  deleteDB
+};
