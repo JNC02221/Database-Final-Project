@@ -1,0 +1,28 @@
+//Start of the functions needed for the project 
+
+
+
+
+
+
+//Function 1: See who has a specific book 
+
+
+
+//Function 2: Check to see if any books are soon to be overdue or are already overdue
+
+
+
+//Function 3: Check to see what books someone has checked out in the past
+
+
+
+//Function 4: Check the invintory of a specific book based on title or author (maybe add more filters)
+
+
+
+//Function 5: Check books that can be checked out 
+
+
+
+//Function 6: Post the members current status (fines, checked out books, reserved books)
