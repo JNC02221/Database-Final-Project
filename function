@@ -6,23 +6,51 @@
 
 
 //Function 1: See who has a specific book 
-
-
+function checkBookStatus(bookTitle) {
+    //Will need to change the names of the tables and columns to match the database
+    query = `SELECT member_name, date_checked_out FROM checked_out_books WHERE bookTitle ='${bookTitle}'`;
+    con.query(query, function(err,result){
+        if (err) throw err;
+        //Return the name of the person and when it was checked out
+        return result;
+    });
+}
 
 //Function 2: Check to see if any books are soon to be overdue or are already overdue
+function checkOverdueBooks() {
 
+    //Return the name of the person or persons and when it is or was due
+    return 
+}
 
 
 //Function 3: Check to see what books someone has checked out in the past
+function checkMemberHistory(memberID) {
 
+    //Return the books that the member has checked out in the past
+    return 
+}
 
 
 //Function 4: Check the invintory of a specific book based on title or author (maybe add more filters)
+function checkBookInventory(bookTitle, bookAuthor, bookGenre, bookPublisher, bookYear) {
 
+    //Return the number of books that are available to be checked out based on a filter
+    return 
+}
 
 
 //Function 5: Check books that can be checked out 
+function checkAvailableBooks() {
 
+    //Return all the books that are available to be checked out (redundant so may not be needed)
+    return 
+}
 
 
 //Function 6: Post the members current status (fines, checked out books, reserved books)
+function checkMemberStatus(memberID) {
+
+    //Return the members current status (fines, checked out books, reserved books)(may also be redundant so may not be needed)
+    return 
+}
