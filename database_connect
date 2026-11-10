@@ -13,6 +13,7 @@ let con = mysql.createConnection({
   password: DB_password
 });
 
+//Makes the database if it doesn't exist and connects to it
 con.connect();{
   con.query(`CREATE DATABASE IF NOT EXISTS ${DB_name}`);
   console.log("Connected to the database");
@@ -23,7 +24,7 @@ con.connect();{
 
 
 function deleteDB(DB_name) {
-  con.query(`DROP DATABASE IF EXISTS ${DB_name}`, function(err, result) {
+  con.query(`DROP DATABASE IF EXISTS ${DB_name}`, function(err) {
     if (err) throw err;
     console.log("Database deleted");
   });
