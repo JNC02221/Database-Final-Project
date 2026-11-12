@@ -1,19 +1,5 @@
 import mysql, { type Pool, type PoolOptions } from "mysql2/promise";
 
-const requiredEnvironmentVariables = [
-  "DB_HOST",
-  "DB_USER",
-  "DB_PASSWORD",
-  "DB_NAME",
-  "JWT_SECRET",
-] as const;
-
-for (const variable of requiredEnvironmentVariables) {
-  if (!process.env[variable]) {
-    throw new Error(`Missing required environment variable: ${variable}`);
-  }
-}
-
 const poolOptions: PoolOptions = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -28,11 +14,25 @@ declare global {
   var mysqlPool: Pool | undefined;
 }
 
-const pool = global.mysqlPool ?? mysql.createPool(poolOptions);
-
-if (process.env.NODE_ENV !== "production") {
-  global.mysqlPool = pool;
+function getPool(): Pool {
+  const missing = ["DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME"].filter(
+    (name) => !process.env[name],
+  );
+  if (missing.length) {
+    throw new Error(`Missing required database environment variables: ${missing.join(", ")}`);
+  }
+  if (!global.mysqlPool) {
+    global.mysqlPool = mysql.createPool(poolOptions);
+  }
+  return global.mysqlPool;
 }
+
+const pool = new Proxy({} as Pool, {
+  get(_target, property) {
+    const value = getPool()[property as keyof Pool];
+    return typeof value === "function" ? value.bind(getPool()) : value;
+  },
+});
 
 export default pool;
 export { pool };
