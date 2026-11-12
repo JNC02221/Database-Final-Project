@@ -11,5 +11,5 @@ export default function Home() {
       .then((session: { role?: string } | null) => router.replace(session?.role === "ADMIN" ? "/admin" : session?.role === "MEMBER" ? "/catalogue" : "/login"))
       .catch(() => router.replace("/login"));
   }, [router]);
-  return <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-600">Opening LibraTrack…</main>;
+  return <main className="app-page flex min-h-screen items-center justify-center text-muted">Opening LibraTrack…</main>;
 }

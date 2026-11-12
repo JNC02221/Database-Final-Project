@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
+import ThemeToggle from "@/components/theme-toggle";
 
 type Session = { userId: number; name: string; role: "ADMIN" | "MEMBER" };
 type Notification = { id: string; severity: "info" | "warning" | "urgent"; message: string; link?: string };
@@ -44,7 +45,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   async function logout() {
     setLoggingOut(true);
     try { await fetch("/api/auth/logout", { method: "POST" }); }
-    finally { router.replace("/login"); router.refresh(); }
+    finally { setLoggingOut(false); router.replace("/login"); router.refresh(); }
   }
 
   const links = session?.role === "ADMIN"
@@ -59,14 +60,15 @@ export default function AppShell({ children }: { children: ReactNode }) {
     ]
     : [{ href: "/catalogue", label: "Catalogue" }, { href: "/account", label: "My account" }];
 
-  return <div className="min-h-screen bg-slate-50">
-    <header className="border-b border-slate-200 bg-white shadow-sm">
+  return <div className="app-page min-h-screen">
+    <header className="surface border-b shadow-sm dark:shadow-black/20">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-5 px-4 py-4 sm:px-6 lg:px-8">
-        <Link href={session?.role === "ADMIN" ? "/admin" : "/catalogue"} className="mr-auto text-xl font-bold tracking-tight text-indigo-700">LibraTrack</Link>
+        <Link href={session?.role === "ADMIN" ? "/admin" : "/catalogue"} className="mr-auto text-xl font-bold tracking-tight text-indigo-700 dark:text-indigo-400">LibraTrack</Link>
         {session && <>
-          <nav className="flex flex-wrap items-center gap-1" aria-label="Main navigation">{links.map((link) => <Link key={link.href} href={link.href} className={`rounded-lg px-3 py-2 text-sm font-medium ${pathname === link.href ? "bg-indigo-50 text-indigo-700" : "text-slate-600 hover:bg-slate-100"}`}>{link.label}</Link>)}</nav>
-          {session.role === "MEMBER" && <div className="relative"><button type="button" className="relative rounded-lg border border-slate-300 bg-white p-2 text-lg shadow-sm hover:bg-slate-50" aria-label="Notifications" title="Notifications" onClick={() => setNotificationsOpen((open) => !open)}>🔔{notifications.length > 0 && <span className="absolute -right-2 -top-2 min-w-5 rounded-full bg-red-600 px-1 text-center text-xs font-bold leading-5 text-white">{notifications.length}</span>}</button>{notificationsOpen && <div className="absolute right-0 z-40 mt-2 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"><div className="border-b border-slate-100 px-4 py-3 font-semibold text-slate-900">Notifications</div><div className="max-h-80 overflow-y-auto">{notifications.length === 0 ? <p className="p-4 text-sm text-slate-600">You&apos;re all caught up.</p> : notifications.map((item) => <Link key={item.id} href={item.link ?? "/notifications"} onClick={() => setNotificationsOpen(false)} className="block border-b border-slate-100 px-4 py-3 text-sm hover:bg-slate-50"><span className={`mr-2 inline-block size-2 rounded-full ${item.severity === "urgent" ? "bg-red-500" : item.severity === "warning" ? "bg-amber-500" : "bg-blue-500"}`} />{item.message}</Link>)}</div><Link href="/notifications" onClick={() => setNotificationsOpen(false)} className="block px-4 py-3 text-center text-sm font-semibold text-indigo-700 hover:bg-indigo-50">View all notifications</Link></div>}</div>}
-          <div className="hidden border-l border-slate-200 pl-5 text-right sm:block"><p className="text-sm font-semibold text-slate-900">{session.name}</p><p className="text-xs font-medium tracking-wide text-slate-500">{session.role}</p></div>
+          <nav className="flex flex-wrap items-center gap-1" aria-label="Main navigation">{links.map((link) => <Link key={link.href} href={link.href} className={`rounded-lg px-3 py-2 text-sm font-medium ${pathname === link.href ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300" : "text-muted hover:bg-slate-100 dark:hover:bg-slate-800"}`}>{link.label}</Link>)}</nav>
+          {session.role === "MEMBER" && <div className="relative"><button type="button" className="icon-button relative text-lg" aria-label="Notifications" title="Notifications" onClick={() => setNotificationsOpen((open) => !open)}>🔔{notifications.length > 0 && <span className="absolute -right-2 -top-2 min-w-5 rounded-full bg-red-600 px-1 text-center text-xs font-bold leading-5 text-white dark:bg-red-500">{notifications.length}</span>}</button>{notificationsOpen && <div className="surface absolute right-0 z-40 mt-2 w-80 overflow-hidden rounded-xl border shadow-xl dark:shadow-black/40"><div className="app-border border-b px-4 py-3 font-semibold text-primary">Notifications</div><div className="max-h-80 overflow-y-auto">{notifications.length === 0 ? <p className="p-4 text-sm text-muted">You&apos;re all caught up.</p> : notifications.map((item) => <Link key={item.id} href={item.link ?? "/notifications"} onClick={() => setNotificationsOpen(false)} className="app-border block border-b px-4 py-3 text-sm hover:bg-slate-50 dark:hover:bg-slate-800"><span className={`mr-2 inline-block size-2 rounded-full ${item.severity === "urgent" ? "bg-red-500" : item.severity === "warning" ? "bg-amber-500" : "bg-blue-500"}`} />{item.message}</Link>)}</div><Link href="/notifications" onClick={() => setNotificationsOpen(false)} className="block px-4 py-3 text-center text-sm font-semibold text-indigo-700 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-950">View all notifications</Link></div>}</div>}
+          <ThemeToggle />
+          <div className="app-border hidden border-l pl-5 text-right sm:block"><p className="text-sm font-semibold text-primary">{session.name}</p><p className="text-xs font-medium tracking-wide text-subtle">{session.role}</p></div>
           <button onClick={logout} disabled={loggingOut} className="button-secondary">{loggingOut ? "Signing out…" : "Logout"}</button>
         </>}
       </div>
