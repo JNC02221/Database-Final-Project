@@ -1,27 +1,83 @@
 # LibraTrack
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## 1. Project overview
 
-## Getting started
+LibraTrack is a library catalogue and circulation system. Members can browse and request books, review loans and fines, manage their profiles, and receive in-app notifications. Library staff can manage books, members, loans, requests, returns, and fine payments from the admin area.
 
-### 1. Prerequisites
+The application uses:
 
-Install the following before setting up LibraTrack:
+- Next.js 16 with the App Router for the frontend and API route handlers
+- TypeScript
+- Tailwind CSS
+- MySQL Server 8.0
+- `mysql2` for database access
+- `bcryptjs` for password hashing
+- `jose` for signed JWT sessions
+
+LibraTrack has two roles:
+
+- **ADMIN** — the librarian role, with access to management and circulation tools.
+- **MEMBER** — the patron role, with access to the catalogue, personal account, requests, and notifications.
+
+## 2. Prerequisites
+
+Install these tools before setting up the project:
 
 - Node.js 18 or newer
-- MySQL Server 8.0
+- MySQL Server 8.0 and the MySQL root password you chose during installation
 - Git
+- Visual Studio Code (optional, but recommended)
 
-### 2. Clone and install
+Check the installed Node.js version.
 
-Clone the repository, create your own working branch, enter the app directory, and install the dependencies. Replace the placeholders with the repository URL and your branch name.
+### Windows PowerShell
+
+```powershell
+node -v
+```
+
+### macOS/Linux
+
+```bash
+node -v
+```
+
+The output must be version 18 or newer.
+
+## 3. Clone and install
+
+Never work directly on `main`. The `main` branch is protected, so create a personal feature branch before making changes. Replace placeholders such as `<repository-url>` and `<your-branch-name>` with real values.
+
+### Windows PowerShell
+
+```powershell
+git clone <repository-url>
+```
+
+```powershell
+cd <repository-folder>
+```
+
+```powershell
+git checkout -b <your-branch-name>
+```
+
+```powershell
+cd libratrack
+```
+
+```powershell
+npm install
+```
+
+### macOS/Linux
 
 ```bash
 git clone <repository-url>
 ```
 
 ```bash
-cd <repository-directory>
+cd <repository-folder>
 ```
 
 ```bash
@@ -36,43 +92,109 @@ cd libratrack
 npm install
 ```
 
-Run the remaining commands in this guide from the `libratrack` folder unless stated otherwise.
+The project’s `package.json` is inside the `libratrack` folder. Run all `npm` and database-loading commands below from that folder.
 
-### 3. Configure the environment
+## 4. Create your `.env.local`
 
-Copy the example environment file.
+This is the setup step people most often miss. `.env.local` stores secrets for your local machine. It is not included in the repository and must never be committed, shared in chat, posted in an issue, or copied from another teammate. Every teammate creates their own file.
 
-On Windows PowerShell:
+Copy the safe template.
+
+### Windows PowerShell
 
 ```powershell
 Copy-Item .env.example .env.local
 ```
 
-On macOS or Linux:
+### macOS/Linux
 
 ```bash
 cp .env.example .env.local
 ```
 
-Open `.env.local` and provide values for all five variables:
+Open the new file in Visual Studio Code.
+
+### Windows PowerShell
+
+```powershell
+code .env.local
+```
+
+### macOS/Linux
+
+```bash
+code .env.local
+```
+
+Replace its contents with this exact layout. Do not add quotes or spaces around `=`.
 
 ```dotenv
 DB_HOST=127.0.0.1
-DB_USER=libratrack_app
-DB_PASSWORD=your_database_password
+DB_USER=root
+DB_PASSWORD=<your own MySQL root password>
 DB_NAME=libratrack
-JWT_SECRET=your_long_random_secret
+JWT_SECRET=<generated below>
 ```
 
-`.env.local` contains secrets and must never be committed to Git.
+What the variables mean:
 
-### 4. Load the database
+- `DB_HOST` is the MySQL server address. `127.0.0.1` means MySQL is running on your computer.
+- `DB_USER` is the MySQL account used by the app. Using `root` is acceptable for local development only; do not use it in production.
+- `DB_PASSWORD` is your own local MySQL root password from the MySQL installation. It will usually differ for every teammate.
+- `DB_NAME` is the application database created by `db/schema.sql`.
+- `JWT_SECRET` signs login-session tokens. It must be private and unpredictable.
 
-Load the SQL files in this order: `schema.sql`, `procedures.sql`, then `seed.sql`. MySQL asks for the root password each time. A successful command normally produces no output.
+Generate a JWT secret with Node.js.
 
-#### Windows PowerShell
+### Windows PowerShell
 
-PowerShell does not support the `<` input redirect used by the macOS/Linux commands below. Run each command separately:
+```powershell
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+### macOS/Linux
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+Copy the output, paste it immediately after `JWT_SECRET=`, and save the file. Each teammate should generate their own secret. It should be at least 32 characters and can be different on every machine.
+
+Verify that the environment file exists.
+
+### Windows PowerShell
+
+```powershell
+Get-ChildItem -Force .env* | Select-Object Name,Length
+```
+
+### macOS/Linux
+
+```bash
+ls -la .env*
+```
+
+Restart the development server after every `.env.local` change. Next.js reads this file when the server starts, not continuously while it is running.
+
+## 5. Load the database
+
+Load the SQL files in this exact order from the `libratrack` folder:
+
+1. `db/schema.sql` creates the database and tables.
+2. `db/procedures.sql` creates the issue and return stored procedures.
+3. `db/seed.sql` inserts sample users, books, authors, and loans.
+
+MySQL prompts for the root password after each command. Type the same local MySQL root password used for `DB_PASSWORD`; the password is not displayed while typing. A successful command normally produces no output.
+
+On Windows, the full executable path is often necessary because `mysql.exe` may not be on `PATH`. If MySQL was installed elsewhere, locate it first.
+
+### Windows PowerShell
+
+```powershell
+Get-ChildItem "C:\Program Files\MySQL" -Recurse -Filter mysql.exe -ErrorAction SilentlyContinue | Select-Object FullName
+```
+
+Then load each file separately.
 
 ```powershell
 Get-Content db\schema.sql -Raw | & "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -p
@@ -86,11 +208,7 @@ Get-Content db\procedures.sql -Raw | & "C:\Program Files\MySQL\MySQL Server 8.0\
 Get-Content db\seed.sql -Raw | & "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -p
 ```
 
-If `mysql` is not recognized, use the full executable path shown above, adjusting it if MySQL is installed elsewhere, or add the MySQL Server `bin` folder to your `PATH`.
-
-#### macOS or Linux
-
-Run each command separately:
+### macOS/Linux
 
 ```bash
 mysql -u root -p < db/schema.sql
@@ -104,31 +222,68 @@ mysql -u root -p < db/procedures.sql
 mysql -u root -p < db/seed.sql
 ```
 
-### 5. Verify the seed data
+## 6. Verify the data
 
-On Windows PowerShell:
+Run one count query to confirm that all seed data loaded. The expected result is 4 users, 15 books, 8 authors, and 2 loans.
+
+### Windows PowerShell
 
 ```powershell
 & "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -p -e "USE libratrack; SELECT (SELECT COUNT(*) FROM users) AS users, (SELECT COUNT(*) FROM books) AS books, (SELECT COUNT(*) FROM authors) AS authors, (SELECT COUNT(*) FROM loans) AS loans;"
 ```
 
-On macOS or Linux:
+### macOS/Linux
 
 ```bash
 mysql -u root -p -e "USE libratrack; SELECT (SELECT COUNT(*) FROM users) AS users, (SELECT COUNT(*) FROM books) AS books, (SELECT COUNT(*) FROM authors) AS authors, (SELECT COUNT(*) FROM loans) AS loans;"
 ```
 
-The expected counts are:
+Expected counts:
 
 | users | books | authors | loans |
 | ---: | ---: | ---: | ---: |
 | 4 | 15 | 8 | 2 |
 
-### 6. Reset the database
+## 7. Run the app
 
-To start fresh, first drop the existing development database. The next run of `schema.sql` recreates the `libratrack` database and its tables; then `procedures.sql` recreates the stored procedures and `seed.sql` reloads the sample data.
+Start the development server from the `libratrack` folder.
 
-On Windows PowerShell:
+### Windows PowerShell
+
+```powershell
+npm run dev
+```
+
+### macOS/Linux
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+The frontend and API run together in the same Next.js process. There is no separate backend server to start. If Next.js prints a warning about multiple lockfiles, it is harmless for local development; use the local URL shown by the terminal.
+
+## 8. Test accounts
+
+All seeded development accounts use the password `Password123!`.
+
+| Role | Name | Email | What the role can do |
+| --- | --- | --- | --- |
+| ADMIN | Avery Morgan | `admin@libratrack.test` | Manage books, members, requests, loans, returns, and fines; view the admin dashboard and catalogue. |
+| MEMBER | Maya Patel | `maya.patel@libratrack.test` | Browse and request books; view loans, borrowing history, fines, notifications, and profile. Includes a seeded current loan. |
+| MEMBER | Ethan Brooks | `ethan.brooks@libratrack.test` | Use member catalogue and account features. Includes seeded returned-loan history. |
+| MEMBER | Sofia Ramirez | `sofia.ramirez@libratrack.test` | Use member catalogue and account features. |
+
+These accounts and credentials are for local development only.
+
+## 9. Reset the database to a clean state
+
+Resetting deletes every user, loan, request, fine, and catalogue change in your local `libratrack` database. Do not run these commands against a shared or production database.
+
+First drop the database, then reload `schema.sql`, `procedures.sql`, and `seed.sql` in that order.
+
+### Windows PowerShell
 
 ```powershell
 & "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -p -e "DROP DATABASE IF EXISTS libratrack;"
@@ -146,7 +301,7 @@ Get-Content db\procedures.sql -Raw | & "C:\Program Files\MySQL\MySQL Server 8.0\
 Get-Content db\seed.sql -Raw | & "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -p
 ```
 
-On macOS or Linux:
+### macOS/Linux
 
 ```bash
 mysql -u root -p -e "DROP DATABASE IF EXISTS libratrack;"
@@ -164,56 +319,128 @@ mysql -u root -p < db/procedures.sql
 mysql -u root -p < db/seed.sql
 ```
 
-Dropping the database deletes all data currently stored in it. Only use these reset commands for a local development database.
+## 10. Git workflow for the team
 
-### 7. Sample accounts
+Work on your own branch, make small focused commits, push your branch, and open a pull request into the protected `main` branch. Reference the relevant issue number in commits and pull requests when one exists.
 
-These accounts are for development only. They all use the shared password `Password123!`.
+The commands are the same on both platforms, but they are shown separately for clarity.
 
-| Role | Email |
-| --- | --- |
-| Admin | `admin@libratrack.test` |
-| Member | `maya.patel@libratrack.test` |
-| Member | `ethan.brooks@libratrack.test` |
-| Member | `sofia.ramirez@libratrack.test` |
+### Windows PowerShell
 
-Never use these credentials in production.
+Create a branch from the appropriate starting branch:
 
-### 8. Run the app
-
-Start the development server:
-
-```bash
-npm run dev
+```powershell
+git checkout -b <your-branch-name>
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser. You can start editing the page by modifying `app/page.tsx`; the page updates as you edit the file.
+Before staging, review your changes:
 
-### 9. Troubleshooting
+```powershell
+git status
+```
 
-#### `mysql` is not recognized
+Confirm that `.env.local` and `node_modules` are **not** listed. Never stage or commit either one.
 
-Use the full path to `mysql.exe` shown in the Windows commands, adjusting it for your installation, or add the MySQL Server `bin` folder to `PATH`.
+Stage the intended changes:
 
-#### `Access denied for user`
+```powershell
+git add .
+```
 
-The MySQL username or password is incorrect. Re-enter the correct root password or confirm the credentials for the MySQL user you are using.
+Commit with a short, meaningful message and include an issue number when applicable:
 
-#### `Unknown database 'libratrack'`
+```powershell
+git commit -m "Add member request workflow (#123)"
+```
 
-The schema has not been loaded yet. Run the `schema.sql` command before loading the procedures or seed data.
+Push the branch:
 
-## Learn more
+```powershell
+git push -u origin <your-branch-name>
+```
 
-To learn more about Next.js, take a look at the following resources:
+### macOS/Linux
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Create a branch from the appropriate starting branch:
 
-You can check out the [Next.js GitHub repository](https://github.com/vercel/next.js) for examples and contribution information.
+```bash
+git checkout -b <your-branch-name>
+```
 
-## Deploy on Vercel
+Before staging, review your changes:
 
-The easiest way to deploy this Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=nextjs&utm_source=create-next-app&utm_campaign=create-next-app-readme).
+```bash
+git status
+```
 
-See the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Confirm that `.env.local` and `node_modules` are **not** listed. Never stage or commit either one.
+
+Stage the intended changes:
+
+```bash
+git add .
+```
+
+Commit with a short, meaningful message and include an issue number when applicable:
+
+```bash
+git commit -m "Add member request workflow (#123)"
+```
+
+Push the branch:
+
+```bash
+git push -u origin <your-branch-name>
+```
+
+Then open a pull request from your branch into `main`. Do not push directly to `main`.
+
+## 11. Troubleshooting
+
+### Problem: `Missing required database environment variables`
+
+**Fix:** Confirm `.env.local` exists in the same `libratrack` folder as `package.json`. Make sure it is named exactly `.env.local`, not `.env.local.txt`, and contains all required variables. Save it and restart `npm run dev`.
+
+### Problem: `Access denied for user`
+
+**Fix:** `DB_PASSWORD` is incorrect. Enter the root password chosen when MySQL was installed. Do not add quotes or spaces around the value, then restart the development server.
+
+### Problem: `Unknown database 'libratrack'`
+
+**Fix:** The schema was not loaded. Run the `db/schema.sql` command in section 5, followed by the procedures and seed commands.
+
+### Problem: `mysql` is not recognized
+
+**Fix:** On Windows, use the full path to `mysql.exe` shown in this guide or add the MySQL Server `bin` directory to `PATH`. Use the search command in section 5 if the installation path differs.
+
+### Problem: `Could not read package.json`
+
+**Fix:** The terminal is in the wrong folder. Change into the application folder before running npm commands.
+
+```bash
+cd libratrack
+```
+
+### Problem: Login says invalid credentials for seeded users
+
+**Fix:** `db/seed.sql` was not loaded, or it was loaded before the schema existed. Load `schema.sql`, then `procedures.sql`, then `seed.sql`. If the database is partially initialized, follow the clean reset steps in section 9.
+
+### Problem: Port 3000 is already in use
+
+**Fix:** Stop the other process using port 3000, or use the alternate local URL printed by Next.js, such as `http://localhost:3001`.
+
+### Problem: JWT errors or unexpected logouts
+
+**Fix:** Confirm `JWT_SECRET` exists and is at least 32 characters. If it was changed, restart the development server and clear the site cookies for `localhost` before signing in again. Existing cookies cannot be verified with a new secret.
+
+## 12. Project structure
+
+```text
+app/          Pages, layouts, loading/error states, and route-specific UI.
+app/api/      Next.js route handlers for authentication and application APIs.
+components/   Shared navigation, tables, forms, modals, notices, and UI helpers.
+lib/          Authentication, authorization, database, and server-side helpers.
+db/           MySQL schema, stored procedures, and seed data.
+scripts/      Small development utility scripts.
+proxy.ts      Request-time route guard and role-based redirects.
+```
