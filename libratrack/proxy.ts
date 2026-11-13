@@ -9,7 +9,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
   if (path.startsWith("/admin") && session.role !== "ADMIN") {
-    return NextResponse.redirect(new URL("/catalogue", request.url));
+    return NextResponse.redirect(new URL("/catalog", request.url));
   }
   if (path.startsWith("/account") && session.role !== "MEMBER") {
     return NextResponse.redirect(new URL("/admin", request.url));
@@ -21,5 +21,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/catalogue/:path*", "/account/:path*", "/notifications/:path*", "/admin/:path*"],
+  matcher: ["/catalog/:path*", "/account/:path*", "/notifications/:path*", "/admin/:path*"],
 };

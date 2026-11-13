@@ -5,7 +5,7 @@ import { useEffect, useSyncExternalStore, type ReactNode } from "react";
 import ThemeToggle from "@/components/theme-toggle";
 
 const features = [
-  { label: "Search the catalogue", icon: <path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" /> },
+  { label: "Search the catalog", icon: <path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" /> },
   { label: "Track loans and due dates", icon: <><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></> },
   { label: "Get due-date reminders", icon: <><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></> },
 ];
@@ -47,13 +47,13 @@ export default function AuthCard({ title, subtitle, children, compact = false }:
   return (
     <main className="app-page relative min-h-screen lg:grid lg:h-screen lg:min-h-0 lg:grid-cols-[minmax(380px,0.9fr)_minmax(520px,1.1fr)] lg:overflow-hidden">
       <div className="absolute right-4 top-4 z-20"><ThemeToggle /></div>
-      <section className="relative isolate overflow-hidden bg-gradient-to-br from-indigo-700 via-violet-700 to-blue-700 px-6 py-8 text-white sm:px-10 lg:flex lg:h-screen lg:min-h-0 lg:flex-col lg:justify-between lg:px-14 lg:py-10">
-        <motion.div initial={false} animate={hydrated && !reduceMotion ? { x: [0, 24, -8, 0], y: [0, 14, -10, 0], scale: [1, 1.08, 0.96, 1] } : { x: 0, y: 0, scale: 1 }} transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }} className="pointer-events-none absolute -left-24 -top-24 size-72 rounded-full bg-current/15 blur-3xl" />
-        <motion.div initial={false} animate={hydrated && !reduceMotion ? { x: [0, -20, 10, 0], y: [0, -18, 8, 0], scale: [1, 0.94, 1.06, 1] } : { x: 0, y: 0, scale: 1 }} transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }} className="pointer-events-none absolute -bottom-28 -right-20 size-80 rounded-full bg-cyan-300/20 blur-3xl" />
-        <motion.div initial={false} animate={hydrated && !reduceMotion ? { x: [0, 14, -14, 0], y: [0, -12, 16, 0], scale: [1, 1.1, 0.98, 1] } : { x: 0, y: 0, scale: 1 }} transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }} className="pointer-events-none absolute left-1/2 top-1/3 size-48 rounded-full bg-fuchsia-300/10 blur-3xl" />
+      <section className="auth-brand-panel relative isolate overflow-hidden bg-gradient-to-br from-indigo-700 via-violet-700 to-blue-700 px-6 py-8 text-white sm:px-10 lg:flex lg:h-screen lg:min-h-0 lg:flex-col lg:justify-between lg:px-14 lg:py-10">
+        <motion.div initial={false} animate={hydrated && !reduceMotion ? { x: [0, 24, -8, 0], y: [0, 14, -10, 0], scale: [1, 1.08, 0.96, 1] } : { x: 0, y: 0, scale: 1 }} transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }} className="auth-glow-one pointer-events-none absolute -left-24 -top-24 size-72 rounded-full bg-current/15 blur-3xl" />
+        <motion.div initial={false} animate={hydrated && !reduceMotion ? { x: [0, -20, 10, 0], y: [0, -18, 8, 0], scale: [1, 0.94, 1.06, 1] } : { x: 0, y: 0, scale: 1 }} transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }} className="auth-glow-two pointer-events-none absolute -bottom-28 -right-20 size-80 rounded-full bg-cyan-300/20 blur-3xl" />
+        <motion.div initial={false} animate={hydrated && !reduceMotion ? { x: [0, 14, -14, 0], y: [0, -12, 16, 0], scale: [1, 1.1, 0.98, 1] } : { x: 0, y: 0, scale: 1 }} transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }} className="auth-glow-three pointer-events-none absolute left-1/2 top-1/3 size-48 rounded-full bg-fuchsia-300/10 blur-3xl" />
 
         <motion.div initial={false} animate={enter()} transition={{ duration: 0.45, ease: "easeOut" }} className="relative flex items-center gap-3 text-xl font-bold tracking-tight">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-current/15 ring-1 ring-current/30 backdrop-blur">
+          <span className="auth-logo-tile grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-current/15 ring-1 ring-current/30 backdrop-blur">
             <svg width="24" height="24" viewBox="0 0 24 24" className="h-6 w-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
           </span>
           LibraTrack
@@ -61,12 +61,12 @@ export default function AuthCard({ title, subtitle, children, compact = false }:
 
         <motion.div initial={false} animate={enter()} transition={{ duration: 0.5, delay: reduceMotion ? 0 : 0.08, ease: "easeOut" }} className="relative my-8 max-w-lg lg:my-auto lg:py-8">
           <h2 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">Your library,<br />always in order.</h2>
-          <p className="mt-4 max-w-md text-base leading-7 text-indigo-100">Everything you need to discover books and stay on top of your library account.</p>
+          <p className="auth-tagline mt-4 max-w-md text-base leading-7 text-indigo-100">Everything you need to discover books and stay on top of your library account.</p>
         </motion.div>
 
-        <motion.ul initial={false} animate={featureControls} variants={featureListVariants} className="auth-motion-safe relative hidden text-sm font-medium text-indigo-50 sm:grid sm:grid-cols-3 sm:gap-4 lg:block lg:space-y-4">
+        <motion.ul initial={false} animate={featureControls} variants={featureListVariants} className="auth-features auth-motion-safe relative hidden text-sm font-medium text-indigo-50 sm:grid sm:grid-cols-3 sm:gap-4 lg:block lg:space-y-4">
           {features.map((feature) => <motion.li variants={featureVariants} whileHover={reduceMotion ? undefined : { x: 4 }} key={feature.label} className="auth-motion-safe flex items-center gap-3">
-            <motion.span whileHover={reduceMotion ? undefined : { scale: 1.1, rotate: 3 }} transition={{ type: "spring", stiffness: 350, damping: 18 }} className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-current/10 ring-1 ring-current/20">
+            <motion.span whileHover={reduceMotion ? undefined : { scale: 1.1, rotate: 3 }} transition={{ type: "spring", stiffness: 350, damping: 18 }} className="auth-feature-icon inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-current/10 ring-1 ring-current/20">
               <svg width="20" height="20" viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">{feature.icon}</svg>
             </motion.span>
             {feature.label}

@@ -2,7 +2,7 @@
 
 ## 1. Project overview
 
-LibraTrack is a library catalogue and circulation system. Members can browse and request books, review loans and fines, manage their profiles, and receive in-app notifications. Library staff can manage books, members, loans, requests, returns, and fine payments from the admin area.
+LibraTrack is a library catalog and circulation system. Members can browse and request books, review loans and fines, manage their profiles, and receive in-app notifications. Library staff can manage books, members, loans, requests, returns, and fine payments from the admin area.
 
 The application uses:
 
@@ -17,7 +17,7 @@ The application uses:
 LibraTrack has two roles:
 
 - **ADMIN** — the librarian role, with access to management and circulation tools.
-- **MEMBER** — the patron role, with access to the catalogue, personal account, requests, and notifications.
+- **MEMBER** — the patron role, with access to the catalog, personal account, requests, and notifications.
 
 ## 2. Prerequisites
 
@@ -270,16 +270,16 @@ All seeded development accounts use the password `Password123!`.
 
 | Role | Name | Email | What the role can do |
 | --- | --- | --- | --- |
-| ADMIN | Avery Morgan | `admin@libratrack.test` | Manage books, members, requests, loans, returns, and fines; view the admin dashboard and catalogue. |
+| ADMIN | Avery Morgan | `admin@libratrack.test` | Manage books, members, requests, loans, returns, and fines; view the admin dashboard and catalog. |
 | MEMBER | Maya Patel | `maya.patel@libratrack.test` | Browse and request books; view loans, borrowing history, fines, notifications, and profile. Includes a seeded current loan. |
-| MEMBER | Ethan Brooks | `ethan.brooks@libratrack.test` | Use member catalogue and account features. Includes seeded returned-loan history. |
-| MEMBER | Sofia Ramirez | `sofia.ramirez@libratrack.test` | Use member catalogue and account features. |
+| MEMBER | Ethan Brooks | `ethan.brooks@libratrack.test` | Use member catalog and account features. Includes seeded returned-loan history. |
+| MEMBER | Sofia Ramirez | `sofia.ramirez@libratrack.test` | Use member catalog and account features. |
 
 These accounts and credentials are for local development only.
 
 ## 9. Reset the database to a clean state
 
-Resetting deletes every user, loan, request, fine, and catalogue change in your local `libratrack` database. Do not run these commands against a shared or production database.
+Resetting deletes every user, loan, request, fine, and catalog change in your local `libratrack` database. Do not run these commands against a shared or production database.
 
 First drop the database, then reload `schema.sql`, `procedures.sql`, and `seed.sql` in that order.
 
