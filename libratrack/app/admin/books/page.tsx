@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import AppShell from "@/components/app-shell";
 import { AdminTable, EmptyState, Field, LoadingState, Modal, Notice, PageHeading, Pagination, SearchBar, requestJson } from "@/components/admin-ui";
@@ -16,12 +17,22 @@ export default function AdminBooksPage() {
   const [input, setInput] = useState(""); const [query, setQuery] = useState(""); const [loading, setLoading] = useState(true);
   const [error, setError] = useState(""); const [success, setSuccess] = useState(""); const [editing, setEditing] = useState<Book | null | undefined>(undefined);
   const [form, setForm] = useState<BookForm>(blank); const [saving, setSaving] = useState(false);
+  const pathname = usePathname();
   const load = useCallback(async () => {
     await Promise.resolve(); setLoading(true); setError("");
     try { const data = await requestJson<{ books: Book[]; total: number }>(`/api/admin/books?q=${encodeURIComponent(query)}&page=${page}&pageSize=${pageSize}`); setBooks(data.books); setTotal(data.total); }
     catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to load books"); } finally { setLoading(false); }
   }, [page, query]);
   useEffect(() => { const timer = window.setTimeout(() => void load(), 0); return () => window.clearTimeout(timer); }, [load]);
+  useEffect(() => {
+    if (pathname !== "/admin/books") return;
+    const timer = window.setTimeout(() => {
+      setEditing(undefined);
+      setForm(blank);
+      setSaving(false);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [pathname]);
 
   function openAdd() { setForm(blank); setEditing(null); setError(""); }
   function openEdit(book: Book) { setForm(formFor(book)); setEditing(book); setError(""); }

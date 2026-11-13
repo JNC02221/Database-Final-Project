@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useReducedMotion } from "framer-motion";
-import { useState, type FormEvent } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState, type FormEvent } from "react";
 import AuthCard from "@/components/auth-card";
 import AuthInput from "@/components/auth-input";
 import { AuthError, AuthField, AuthSubmitButton, PasswordToggle } from "@/components/auth-motion";
@@ -15,9 +14,21 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [leaving, setLeaving] = useState(false);
-  const reduceMotion = useReducedMotion();
   const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (pathname !== "/register") return;
+    const timer = window.setTimeout(() => {
+      setFullName("");
+      setEmail("");
+      setPassword("");
+      setShowPassword(false);
+      setError("");
+      setLoading(false);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [pathname]);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -27,16 +38,20 @@ export default function RegisterPage() {
       const response = await fetch("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ full_name: fullName, email, password }) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Unable to create account");
-      setLeaving(true);
-      if (!reduceMotion) await new Promise((resolve) => setTimeout(resolve, 180));
       router.replace("/login");
+      setFullName("");
+      setEmail("");
+      setPassword("");
+      setShowPassword(false);
+      setError("");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Unable to create account");
+    } finally {
       setLoading(false);
     }
   }
 
-  return <AuthCard title="Create your account" subtitle="Join LibraTrack to discover books and keep every due date in view." leaving={leaving} compact>
+  return <AuthCard title="Create your account" subtitle="Join LibraTrack to discover books and keep every due date in view." compact>
     <form onSubmit={submit} className="space-y-4">
       <AuthError message={error} />
       <AuthField index={0}>

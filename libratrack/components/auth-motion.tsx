@@ -1,7 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useSyncExternalStore, type ReactNode } from "react";
+import { AnimatePresence, motion, useAnimationControls, useReducedMotion } from "framer-motion";
+import { useEffect, useSyncExternalStore, type ReactNode } from "react";
 
 function subscribeToHydration() { return () => undefined; }
 function useHydrated() { return useSyncExternalStore(subscribeToHydration, () => true, () => false); }
@@ -9,7 +9,17 @@ function useHydrated() { return useSyncExternalStore(subscribeToHydration, () =>
 export function AuthField({ children, index }: { children: ReactNode; index: number }) {
   const reduceMotion = useReducedMotion();
   const hydrated = useHydrated();
-  return <motion.div initial={false} animate={hydrated ? reduceMotion ? { opacity: [0.9, 1] } : { opacity: [0.84, 1], y: [8, 0] } : { opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: reduceMotion ? 0 : 0.16 + index * 0.07, ease: "easeOut" }}>{children}</motion.div>;
+  const controls = useAnimationControls();
+
+  useEffect(() => {
+    if (!hydrated) return;
+
+    const visible = { opacity: 1, y: 0 };
+    controls.set(reduceMotion ? { opacity: 0.9, y: 0 } : { opacity: 0.84, y: 8 });
+    void controls.start(visible, { duration: 0.35, delay: reduceMotion ? 0 : 0.16 + index * 0.07, ease: "easeOut" });
+  }, [controls, hydrated, index, reduceMotion]);
+
+  return <motion.div initial={false} animate={controls} className="auth-motion-safe">{children}</motion.div>;
 }
 
 export function AuthError({ message }: { message: string }) {
