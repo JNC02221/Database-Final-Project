@@ -8,7 +8,7 @@ export default function Home() {
   useEffect(() => {
     fetch("/api/auth/me", { cache: "no-store" })
       .then(async (response) => response.ok ? response.json() : null)
-      .then((session: { role?: string } | null) => router.replace(session?.role === "ADMIN" ? "/admin" : session?.role === "MEMBER" ? "/catalogue" : "/login"))
+      .then((session: { role?: string } | null) => router.replace(session?.role === "ADMIN" ? "/admin" : session?.role === "MEMBER" ? "/catalog" : "/login"))
       .catch(() => router.replace("/login"));
   }, [router]);
   return <main className="app-page flex min-h-screen items-center justify-center text-muted">Opening LibraTrack…</main>;

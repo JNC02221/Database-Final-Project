@@ -65,6 +65,6 @@ export default function RegisterPage() {
       </AuthField>
       <AuthField index={3}><AuthSubmitButton loading={loading} label="Create member account" loadingLabel="Creating account…" /></AuthField>
     </form>
-    <p className="mt-5 text-center text-sm text-muted">Already registered? <Link className="font-semibold text-indigo-700 transition-colors hover:text-indigo-600 dark:text-indigo-400 dark:hover:text-indigo-300" href="/login">Sign in</Link></p>
+    <p className="mt-5 text-center text-sm text-muted">Already registered? <Link className="gold-link font-semibold text-indigo-700 transition-colors hover:text-indigo-600" href="/login">Sign in</Link></p>
   </AuthCard>;
 }

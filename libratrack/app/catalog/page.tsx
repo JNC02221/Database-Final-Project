@@ -7,7 +7,7 @@ import { Notice, requestJson } from "@/components/admin-ui";
 type Category = { category_id: number; name: string };
 type Book = { book_id: number; isbn: string; title: string; authors: string | null; category_name: string; publisher_name: string; total_copies: number; available_copies: number };
 
-export default function CataloguePage() {
+export default function CatalogPage() {
   const [books, setBooks] = useState<Book[]>([]); const [categories, setCategories] = useState<Category[]>([]);
   const [queryInput, setQueryInput] = useState(""); const [query, setQuery] = useState(""); const [category, setCategory] = useState("");
   const [availableOnly, setAvailableOnly] = useState(false); const [page, setPage] = useState(1); const [total, setTotal] = useState(0);
@@ -58,12 +58,12 @@ export default function CataloguePage() {
     catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to request book"); } finally { setRequesting(null); }
   }
 
-  return <AppShell><div className="mb-7"><p className="eyebrow">Library collection</p><h1 className="page-title">Book catalogue</h1><p className="page-subtitle">Search by title, author, or ISBN and check live availability.</p></div>
+  return <AppShell><div className="mb-7"><p className="eyebrow">Library collection</p><h1 className="page-title">Book catalog</h1><p className="page-subtitle">Search by title, author, or ISBN and check live availability.</p></div>
     {success && <Notice message={success} onClose={() => setSuccess("")} />}
     <form onSubmit={search} className="panel mb-6 grid gap-4 p-4 md:grid-cols-[1fr_220px_auto_auto] md:items-end">
       <label className="field-label">Search<input className="field-input" value={queryInput} onChange={(event) => setQueryInput(event.target.value)} placeholder="Title, author, or ISBN" /></label>
       <label className="field-label">Category<select className="field-input" value={category} onChange={(event) => { setCategory(event.target.value); setPage(1); }}><option value="">All categories</option>{categories.map((item) => <option key={item.category_id} value={item.category_id}>{item.name}</option>)}</select></label>
-      <label className="flex h-11 cursor-pointer items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-medium text-slate-700 dark:border-slate-600 dark:text-slate-200"><input type="checkbox" checked={availableOnly} onChange={(event) => { setAvailableOnly(event.target.checked); setPage(1); }} className="size-4 accent-indigo-600" />Available only</label>
+      <label className="catalog-filter flex h-11 cursor-pointer items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-medium text-slate-700 dark:border-slate-600 dark:text-slate-200"><input type="checkbox" checked={availableOnly} onChange={(event) => { setAvailableOnly(event.target.checked); setPage(1); }} className="catalog-checkbox size-4 accent-indigo-600" />Available only</label>
       <button className="button-primary h-11">Search</button>
     </form>
     {error ? <div className="alert-error flex items-center justify-between gap-3"><span>{error}</span><button onClick={loadBooks} className="font-semibold underline">Try again</button></div> : loading ? <div className="loading-card">Loading books…</div> : books.length === 0 ? <div className="empty-card"><h2 className="font-semibold text-primary">No books found</h2><p className="mt-1 text-sm text-muted">Try changing your search or filters.</p></div> : <>

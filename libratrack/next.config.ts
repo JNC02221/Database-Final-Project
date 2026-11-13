@@ -8,6 +8,15 @@ const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
+  redirects() {
+    return [
+      {
+        source: "/catalogue",
+        destination: "/catalog",
+        permanent: true,
+      },
+    ];
+  },
   turbopack: {
     root: projectRoot,
     rules: {

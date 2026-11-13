@@ -36,7 +36,7 @@ export default function LoginPage() {
       const response = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Unable to sign in");
-      router.replace(data.role === "ADMIN" ? "/admin" : "/catalogue");
+      router.replace(data.role === "ADMIN" ? "/admin" : "/catalog");
       router.refresh();
       setEmail("");
       setPassword("");
@@ -60,6 +60,6 @@ export default function LoginPage() {
       </AuthField>
       <AuthField index={2}><AuthSubmitButton loading={loading} label="Sign in" loadingLabel="Signing in…" /></AuthField>
     </form>
-    <p className="mt-7 text-center text-sm text-muted">Don&apos;t have an account? <Link className="font-semibold text-indigo-700 transition-colors hover:text-indigo-600 dark:text-indigo-400 dark:hover:text-indigo-300" href="/register">Register</Link></p>
+    <p className="mt-7 text-center text-sm text-muted">Don&apos;t have an account? <Link className="gold-link font-semibold text-indigo-700 transition-colors hover:text-indigo-600" href="/register">Register</Link></p>
   </AuthCard>;
 }

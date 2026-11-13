@@ -32,7 +32,7 @@ export function AdminTable({ headings, children }: { headings: string[]; childre
 }
 
 export function Modal({ title, children, onClose, wide = false }: { title: string; children: ReactNode; onClose: () => void; wide?: boolean }) {
-  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={title} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><section className={`surface max-h-[90vh] w-full overflow-y-auto rounded-2xl border p-6 shadow-2xl dark:shadow-black/60 ${wide ? "max-w-4xl" : "max-w-xl"}`}><div className="mb-5 flex items-center justify-between gap-3"><h2 className="text-xl font-bold text-primary">{title}</h2><button type="button" className="button-secondary" onClick={onClose}>Close</button></div>{children}</section></div>;
+  return <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={title} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><section className={`raised-surface surface max-h-[90vh] w-full overflow-y-auto rounded-2xl border p-6 shadow-2xl dark:shadow-black/60 ${wide ? "max-w-4xl" : "max-w-xl"}`}><div className="mb-5 flex items-center justify-between gap-3"><h2 className="text-xl font-bold text-primary">{title}</h2><button type="button" className="button-secondary" onClick={onClose}>Close</button></div>{children}</section></div>;
 }
 
 export function Field({ label, children }: { label: string; children: ReactNode }) { return <label className="field-label">{label}{children}</label>; }
