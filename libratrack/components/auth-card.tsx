@@ -1,7 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
-import { useSyncExternalStore, type ReactNode } from "react";
+import { motion, useAnimationControls, useReducedMotion } from "framer-motion";
+import { useEffect, useSyncExternalStore, type ReactNode } from "react";
 import ThemeToggle from "@/components/theme-toggle";
 
 const features = [
@@ -13,20 +13,36 @@ const features = [
 function subscribeToHydration() { return () => undefined; }
 function useHydrated() { return useSyncExternalStore(subscribeToHydration, () => true, () => false); }
 
-export default function AuthCard({ title, subtitle, children, leaving = false, compact = false }: { title: string; subtitle: string; children: ReactNode; leaving?: boolean; compact?: boolean }) {
+export default function AuthCard({ title, subtitle, children, compact = false }: { title: string; subtitle: string; children: ReactNode; compact?: boolean }) {
   const hydrated = useHydrated();
   const reduceMotion = useReducedMotion();
+  const cardControls = useAnimationControls();
+  const featureControls = useAnimationControls();
   const enter = () => hydrated ? reduceMotion ? { opacity: [0.9, 1] } : { opacity: [0.84, 1], y: [10, 0] } : { opacity: 1, y: 0 };
   const featureListVariants = {
     rest: { opacity: 1 },
+    enter: { opacity: 1 },
     show: { opacity: 1, transition: reduceMotion ? {} : { delayChildren: 0.18, staggerChildren: 0.09 } },
   };
   const featureVariants = {
     rest: { opacity: 1, y: 0 },
+    enter: reduceMotion ? { opacity: 0.92, y: 0 } : { opacity: 0.82, y: 10 },
     show: reduceMotion
       ? { opacity: [0.92, 1], y: 0, transition: { duration: 0.25 } }
       : { opacity: [0.82, 1], y: [10, 0], transition: { duration: 0.4, ease: "easeOut" as const } },
   };
+
+  useEffect(() => {
+    if (!hydrated) return;
+
+    const visible = { opacity: 1, y: 0, scale: 1 };
+    cardControls.set(reduceMotion ? { opacity: 0.9, y: 0, scale: 1 } : { opacity: 0.78, y: 16, scale: 0.985 });
+    void cardControls.start(visible, reduceMotion
+      ? { duration: 0.25 }
+      : { type: "spring", stiffness: 190, damping: 22, delay: 0.08 });
+    featureControls.set("enter");
+    void featureControls.start("show");
+  }, [cardControls, featureControls, hydrated, reduceMotion]);
 
   return (
     <main className="app-page relative min-h-screen lg:grid lg:h-screen lg:min-h-0 lg:grid-cols-[minmax(380px,0.9fr)_minmax(520px,1.1fr)] lg:overflow-hidden">
@@ -48,8 +64,8 @@ export default function AuthCard({ title, subtitle, children, leaving = false, c
           <p className="mt-4 max-w-md text-base leading-7 text-indigo-100">Everything you need to discover books and stay on top of your library account.</p>
         </motion.div>
 
-        <motion.ul initial={false} animate={hydrated ? "show" : "rest"} variants={featureListVariants} className="relative hidden text-sm font-medium text-indigo-50 sm:grid sm:grid-cols-3 sm:gap-4 lg:block lg:space-y-4">
-          {features.map((feature) => <motion.li variants={featureVariants} whileHover={reduceMotion ? undefined : { x: 4 }} key={feature.label} className="flex items-center gap-3">
+        <motion.ul initial={false} animate={featureControls} variants={featureListVariants} className="auth-motion-safe relative hidden text-sm font-medium text-indigo-50 sm:grid sm:grid-cols-3 sm:gap-4 lg:block lg:space-y-4">
+          {features.map((feature) => <motion.li variants={featureVariants} whileHover={reduceMotion ? undefined : { x: 4 }} key={feature.label} className="auth-motion-safe flex items-center gap-3">
             <motion.span whileHover={reduceMotion ? undefined : { scale: 1.1, rotate: 3 }} transition={{ type: "spring", stiffness: 350, damping: 18 }} className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-current/10 ring-1 ring-current/20">
               <svg width="20" height="20" viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">{feature.icon}</svg>
             </motion.span>
@@ -59,7 +75,7 @@ export default function AuthCard({ title, subtitle, children, leaving = false, c
       </section>
 
       <section className="flex min-h-[60vh] items-center justify-center px-5 py-8 sm:px-10 lg:h-screen lg:min-h-0 lg:px-12 lg:py-4">
-        <motion.div initial={false} animate={leaving ? { opacity: 0, y: reduceMotion ? 0 : -6, scale: reduceMotion ? 1 : 0.99 } : hydrated ? reduceMotion ? { opacity: [0.9, 1] } : { opacity: [0.78, 1], y: [16, 0], scale: [0.985, 1] } : { opacity: 1, y: 0, scale: 1 }} transition={leaving ? { duration: reduceMotion ? 0.1 : 0.18 } : reduceMotion ? { duration: 0.25 } : { type: "spring", stiffness: 190, damping: 22, delay: 0.08 }} className={`surface w-full max-w-md rounded-3xl border shadow-xl dark:shadow-black/30 ${compact ? "p-5 sm:p-7" : "p-6 sm:p-9"}`}>
+        <motion.div initial={false} animate={cardControls} className={`auth-motion-safe surface w-full max-w-md rounded-3xl border shadow-xl dark:shadow-black/30 ${compact ? "p-5 sm:p-7" : "p-6 sm:p-9"}`}>
           <div className={compact ? "mb-5" : "mb-8"}><p className="eyebrow">Welcome to LibraTrack</p><h1 className="mt-2 text-3xl font-bold tracking-tight text-primary">{title}</h1><p className="mt-2 text-sm leading-6 text-muted">{subtitle}</p></div>
           {children}
         </motion.div>

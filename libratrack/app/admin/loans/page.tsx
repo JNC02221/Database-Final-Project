@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import AppShell from "@/components/app-shell";
 import { AdminTable, EmptyState, Field, LoadingState, Notice, PageHeading, requestJson, StatusBadge } from "@/components/admin-ui";
@@ -13,8 +14,20 @@ export default function AdminLoansPage() {
   const [loans, setLoans] = useState<Loan[]>([]); const [members, setMembers] = useState<Member[]>([]); const [books, setBooks] = useState<Book[]>([]);
   const [filter, setFilter] = useState("all"); const [loading, setLoading] = useState(true); const [error, setError] = useState(""); const [success, setSuccess] = useState("");
   const [memberSearch, setMemberSearch] = useState(""); const [bookSearch, setBookSearch] = useState(""); const [userId, setUserId] = useState(""); const [bookId, setBookId] = useState(""); const [issuing, setIssuing] = useState(false);
+  const pathname = usePathname();
   const load = useCallback(async () => { await Promise.resolve(); setLoading(true); setError(""); try { const data = await requestJson<{ loans: Loan[] }>(`/api/admin/loans?filter=${filter}`); setLoans(data.loans); } catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to load loans"); } finally { setLoading(false); } }, [filter]);
   useEffect(() => { const timer = window.setTimeout(() => void load(), 0); return () => window.clearTimeout(timer); }, [load]);
+  useEffect(() => {
+    if (pathname !== "/admin/loans") return;
+    const timer = window.setTimeout(() => {
+      setMemberSearch("");
+      setBookSearch("");
+      setUserId("");
+      setBookId("");
+      setIssuing(false);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [pathname]);
   useEffect(() => { requestJson<{ members: Member[] }>("/api/admin/members").then((data) => setMembers(data.members)).catch((reason: Error) => setError(reason.message)); }, []);
   useEffect(() => {
     const timer = window.setTimeout(() => {

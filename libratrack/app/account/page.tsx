@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import AppShell from "@/components/app-shell";
 import { AdminTable, EmptyState, Field, LoadingState, Notice, PageHeading, requestJson, StatusBadge } from "@/components/admin-ui";
@@ -16,8 +17,17 @@ export default function AccountPage() {
   const [tab, setTab] = useState("loans"); const [account, setAccount] = useState<AccountData | null>(null); const [requests, setRequests] = useState<BookRequest[]>([]); const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true); const [error, setError] = useState(""); const [success, setSuccess] = useState("");
   const [profileForm, setProfileForm] = useState({ full_name: "", phone: "", address: "" }); const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "" }); const [saving, setSaving] = useState(false);
+  const pathname = usePathname();
   const load = useCallback(async () => { await Promise.resolve(); setLoading(true); setError(""); try { const [loanData, requestData, profileData] = await Promise.all([requestJson<AccountData>("/api/me/loans"), requestJson<{ requests: BookRequest[] }>("/api/me/requests"), requestJson<{ profile: Profile }>("/api/me/profile")]); setAccount(loanData); setRequests(requestData.requests); setProfile(profileData.profile); setProfileForm({ full_name: profileData.profile.full_name, phone: profileData.profile.phone ?? "", address: profileData.profile.address ?? "" }); } catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to load your account"); } finally { setLoading(false); } }, []);
   useEffect(() => { const timer = window.setTimeout(() => void load(), 0); return () => window.clearTimeout(timer); }, [load]);
+  useEffect(() => {
+    if (pathname !== "/account") return;
+    const timer = window.setTimeout(() => {
+      setPasswordForm({ currentPassword: "", newPassword: "" });
+      setSaving(false);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [pathname]);
   async function cancelRequest(item: BookRequest) { if (!window.confirm(`Cancel your request for “${item.title}”?`)) return; try { await requestJson(`/api/me/requests/${item.reservation_id}`, { method: "DELETE" }); setSuccess("Request cancelled"); setRequests((current) => current.map((request) => request.reservation_id === item.reservation_id ? { ...request, status: "CANCELLED" } : request)); } catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to cancel request"); } }
   async function saveProfile(event: FormEvent) { event.preventDefault(); setSaving(true); setError(""); try { await requestJson("/api/me/profile", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(profileForm) }); setProfile((current) => current ? { ...current, ...profileForm } : current); setSuccess("Profile updated"); } catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to update profile"); } finally { setSaving(false); } }
   async function changePassword(event: FormEvent) { event.preventDefault(); setSaving(true); setError(""); try { await requestJson("/api/me/password", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(passwordForm) }); setPasswordForm({ currentPassword: "", newPassword: "" }); setSuccess("Password changed"); } catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to change password"); } finally { setSaving(false); } }

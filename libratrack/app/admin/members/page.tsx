@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import AppShell from "@/components/app-shell";
 import { AdminTable, EmptyState, Field, LoadingState, Modal, Notice, PageHeading, SearchBar, requestJson, StatusBadge } from "@/components/admin-ui";
@@ -15,8 +16,21 @@ export default function AdminMembersPage() {
   const [loading, setLoading] = useState(true); const [error, setError] = useState(""); const [success, setSuccess] = useState("");
   const [editing, setEditing] = useState<Member | null | undefined>(undefined); const [form, setForm] = useState<MemberForm>(blank); const [saving, setSaving] = useState(false);
   const [historyMember, setHistoryMember] = useState<Member | null>(null); const [history, setHistory] = useState<History[]>([]); const [historyLoading, setHistoryLoading] = useState(false);
+  const pathname = usePathname();
   const load = useCallback(async () => { await Promise.resolve(); setLoading(true); setError(""); try { const data = await requestJson<{ members: Member[] }>(`/api/admin/members?q=${encodeURIComponent(query)}`); setMembers(data.members); } catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to load members"); } finally { setLoading(false); } }, [query]);
   useEffect(() => { const timer = window.setTimeout(() => void load(), 0); return () => window.clearTimeout(timer); }, [load]);
+  useEffect(() => {
+    if (pathname !== "/admin/members") return;
+    const timer = window.setTimeout(() => {
+      setEditing(undefined);
+      setForm(blank);
+      setSaving(false);
+      setHistoryMember(null);
+      setHistory([]);
+      setHistoryLoading(false);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [pathname]);
   function update(key: keyof MemberForm, value: string) { setForm((current) => ({ ...current, [key]: value } as MemberForm)); }
   function openAdd() { setForm(blank); setEditing(null); }
   function openEdit(member: Member) { setForm({ full_name: member.full_name, email: member.email, password: "", phone: member.phone ?? "", address: member.address ?? "", status: member.status }); setEditing(member); }

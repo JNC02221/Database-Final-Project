@@ -18,6 +18,11 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
+    const timer = window.setTimeout(() => setNotificationsOpen(false), 0);
+    return () => window.clearTimeout(timer);
+  }, [pathname]);
+
+  useEffect(() => {
     let active = true;
     fetch("/api/auth/me", { cache: "no-store" })
       .then(async (response) => {

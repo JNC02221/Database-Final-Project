@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useReducedMotion } from "framer-motion";
-import { useState, type FormEvent } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState, type FormEvent } from "react";
 import AuthCard from "@/components/auth-card";
 import AuthInput from "@/components/auth-input";
 import { AuthError, AuthField, AuthSubmitButton, PasswordToggle } from "@/components/auth-motion";
@@ -14,9 +13,20 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [leaving, setLeaving] = useState(false);
-  const reduceMotion = useReducedMotion();
   const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (pathname !== "/login") return;
+    const timer = window.setTimeout(() => {
+      setEmail("");
+      setPassword("");
+      setShowPassword(false);
+      setError("");
+      setLoading(false);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [pathname]);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -26,17 +36,20 @@ export default function LoginPage() {
       const response = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Unable to sign in");
-      setLeaving(true);
-      if (!reduceMotion) await new Promise((resolve) => setTimeout(resolve, 180));
       router.replace(data.role === "ADMIN" ? "/admin" : "/catalogue");
       router.refresh();
+      setEmail("");
+      setPassword("");
+      setShowPassword(false);
+      setError("");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Unable to sign in");
+    } finally {
       setLoading(false);
     }
   }
 
-  return <AuthCard title="Welcome back" subtitle="Sign in to browse the collection and manage your library account." leaving={leaving}>
+  return <AuthCard title="Welcome back" subtitle="Sign in to browse the collection and manage your library account.">
     <form onSubmit={submit} className="space-y-5">
       <AuthError message={error} />
       <AuthField index={0}>

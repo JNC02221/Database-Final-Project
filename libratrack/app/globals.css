@@ -56,6 +56,10 @@ button, input, select { font: inherit; }
 button { cursor: pointer; }
 button:disabled { cursor: not-allowed; opacity: 0.55; }
 
+/* Framer Motion adds inline values after hydration; this keeps auth content
+   visible in the server HTML and if client-side animation cannot start. */
+.auth-motion-safe { opacity: 1; transform: none; }
+
 .auth-input-row input:-webkit-autofill,
 .auth-input-row input:-webkit-autofill:hover,
 .auth-input-row input:-webkit-autofill:focus,
